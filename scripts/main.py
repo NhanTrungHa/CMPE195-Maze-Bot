@@ -1,19 +1,20 @@
+#!/usr/bin/env python3
+
 import rospy
 import logging
-
+import os
+from wallfollowing import WallFollower
 from TurtlebotDriving import TurtlebotDriving
-from algorithm.wallfollower import WallFollower
 config = {
     "algorithm": "wallfollowing"
 }
 
 def main():
-    os.chdir(r'./src/maze_solver')
+    #os.chdir(r'./src/maze_solver')
 
     if config["algorithm"].casefold() == "wallfollowing":
         name = "Wall Follower Algorithm"
         algorithm = WallFollower(speed=0.2, distance_wall=0.4, side="right")
-
 
     logging.info(f'''Starting Solve using {name}''')
 
@@ -28,7 +29,8 @@ def main():
         else:
             print("\nNo path found")
 
-        print("Time taken :",timetaken,"s\n")
+        print("Time taken :", timetaken, "s\n")
 
 if __name__ == '__main__':
     main()
+
