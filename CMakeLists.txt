@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(maze_solver)
+project(CMPE195-Maze-Bot)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
