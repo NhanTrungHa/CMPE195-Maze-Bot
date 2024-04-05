@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> 72a18a06ee8a9979dee29244878c4cff144e9e9c
 import rospy
 import tf
 import matplotlib.pyplot as plt

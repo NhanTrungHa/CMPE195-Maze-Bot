@@ -1,0 +1,2 @@
+def depthfirst():
+    return None
