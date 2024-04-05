@@ -1,39 +1,38 @@
 #!/usr/bin/env python3
 
 import rospy
-import logging
-import os
 from wallfollowing import WallFollower
 from simplewallfollowing import SimpleWallFollower
+from wallfollowingbot import WallFollowingBot
+from TurtlebotDriving import TurtlebotDriving
 
-config = {
-    "algorithm": "simplewallfollowing"
-}
+def get_algorithm(config):
+    algorithm_type = config.get("algorithm", "").casefold()
+
+    if algorithm_type == "wallfollowingbot":
+        return WallFollowingBot(speed=0.2, wall_distance=0.3, side="right"), "Wall Following Algorithm"
+    elif algorithm_type == "wallfollowing":
+    	return WallFollower(speed=0.2, distance_wall=0.3, side="right"), "Wall Follower"
+    else:
+        raise ValueError(f"Unknown algorithm specified: {config['algorithm']}")
 
 def main():
-    # Set up logging
-    logging.basicConfig(level=logging.INFO)
+    config = {
+        "algorithm": "wallfollowingbot"
+    }
 
-    # Check which algorithm to use
-    if config["algorithm"].casefold() == "wallfollowing":
-        name = "Wall Follower Algorithm"
-        algorithm = WallFollower(speed=0.2, distance_wall=0.4, side="right")
-    elif config["algorithm"].casefold() == "simplewallfollowing":
-        name = "Simple Wall Follower Algorithm"
-        algorithm = SimpleWallFollower(robot_speed=0.3, wall_distance=0.5, wall_side="right")
-    else:
-        logging.error("Unknown algorithm specified.")
-        return
-
-    logging.info(f"Starting Solve using {name}")
-
-    # Run the selected algorithm
     try:
+        algorithm, name = get_algorithm(config)
+        rospy.loginfo(f"Starting {name}")
         algorithm.run()
-        # Note: In this structure, we're assuming run() doesn't return a value and runs indefinitely or until ROS is shut down.
-        logging.info("Algorithm execution completed.")
+        rospy.spin()  # Keeps the node running until manually interrupted
+        rospy.loginfo("Algorithm execution completed successfully.")
+    except ValueError as e:
+        rospy.logerr(e)
     except rospy.ROSInterruptException:
-        logging.info(f"{name} was interrupted.")
+        rospy.loginfo(f"{name} was interrupted by ROS.")
+    except Exception as e:
+        rospy.logerr(f"An unexpected error occurred: {str(e)}")
 
 if __name__ == '__main__':
     main()
