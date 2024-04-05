@@ -1,101 +1,90 @@
 import numpy as np
+from typing import List, Optional, Tuple
 
 class Maze:
     class Node:
-        def __init__(self, position=None):
+        def __init__(self, position: Tuple[int, int]) -> None:
             self.position = position
+            self.neighbours = [None, None, None, None]
+            self.distance = float('inf')  # Initialize distance to infinity
 
-            self.neighbours =  [None, None, None, None]
+        def __lt__(self, other: 'Maze.Node') -> bool:
+            return self.position < other.position
 
-        def __lt__(self, other):
-            return (self.position < other.position) 
+        def __gt__(self, other: 'Maze.Node') -> bool:
+            return self.position > other.position
 
-        def __gt__(self, other):
-            return (self.position > other.position)
+        def __le__(self, other: 'Maze.Node') -> bool:
+            return self < other or self == other
 
-        def __le__(self, other):
-            return (self < other) or (self == other)
+        def __ge__(self, other: 'Maze.Node') -> bool:
+            return self > other or self == other
 
-        def __ge__(self, other):
-            return (self > other) or (self == other)
-        
+        def set_distance(self, distance: int) -> None:
+            self.distance = distance
 
-    def __init__(self, arr):
-
+    def __init__(self, arr: List[List[int]]) -> None:
         maze = np.array(arr)
-
-        self.width = maze.shape[0]
-        self.height = maze.shape[1]
-
-        self.start = None
-        self.end = None
-        nodecount = 0
+        self.width, self.height = maze.shape
+        self.start, self.end = None, None
+        self.nodecount = 0
         left = None
-        toprownodes = [None] * self.width
+        top_row_nodes: List[Optional['Maze.Node']] = [None] * self.width
 
         # Starting node
-        for y in range(self.height):
-            if maze[0,y] == 0:
-                self.start = Maze.Node((0,y))
-                toprownodes[y] = self.start
-                nodecount += 1
+        for y, cell in enumerate(maze[0]):
+            if cell == 0:
+                self.start = self.Node((0, y))
+                self.start.set_distance(0)  # Set start node distance to 0
+                top_row_nodes[y] = self.start
+                self.nodecount += 1
 
-        for x in range(1, self.width-1):
+        for x in range(1, self.width - 1):
+            for y, cell in enumerate(maze[x]):
+                prev_cell = maze[x, y - 1] if y > 0 else False
+                next_cell = maze[x, y + 1] if y < self.height - 1 else False
+                current_cell = cell == 0
 
-            prev = False
-            current = False
-            next = maze[x,1] == 0
-
-            for y in range(1, self.height-1):
-                
-                prev = current
-                current = next
-                next = maze[x,y+1] == 0
-
-                n = None
-
-                if not current:
+                if not current_cell:
                     continue
 
-                if prev:
-                    n = Maze.Node((x,y))
+                if prev_cell:
+                    n = self.Node((x, y))
                     left.neighbours[1] = n
                     n.neighbours[3] = left
-                    
-                    if next:
+
+                    if next_cell:
                         left = n
                     else:
                         left = None
-
                 else:
-                    n = Maze.Node((x,y))
+                    n = self.Node((x, y))
                     left = n
 
-                if n != None:
-                    if (maze[x-1,y] == 0):
-                        t = toprownodes[y]
+                if n is not None:
+                    if x > 0 and maze[x - 1, y] == 0:
+                        t = top_row_nodes[y]
                         t.neighbours[2] = n
                         n.neighbours[0] = t
 
-                    if (maze[x+1,y] == 0):
-                        toprownodes[y] = n
-                    
+                    if x < self.width - 1 and maze[x + 1, y] == 0:
+                        top_row_nodes[y] = n
                     else:
-                        toprownodes[y] = None
+                        top_row_nodes[y] = None
 
-                    nodecount += 1
-
+                    self.nodecount += 1
 
         # Ending node
-        for y in range(self.height):
-            if maze[-1,y] == 0:
-                self.end = Maze.Node((self.height-1,y))
-                t = toprownodes[y]
-                t.neighbours[2] = self.end
-                self.end.neighbours[0] = t
-                nodecount += 1
+        for y, cell in enumerate(maze[-1]):
+            if cell == 0:
+                self.end = self.Node((self.width - 1, y))
+                top_row_nodes[y].neighbours[2] = self.end
+                self.end.neighbours[0] = top_row_nodes[y]
+                self.nodecount += 1
                 break
-                
-        
-        self.nodecount = nodecount
-                
+
+    def calculate_distance(self, start: 'Maze.Node', end: 'Maze.Node') -> int:
+        """
+        Calculates the distance between two nodes using Manhattan distance.
+        """
+        return abs(start.position[0] - end.position[0]) + abs(start.position[1] - end.position[1])
