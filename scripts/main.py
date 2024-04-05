@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import rospy
-from wallfollowing import WallFollower
-from simplewallfollowing import SimpleWallFollower
 from wallfollowingbot import WallFollowingBot
 from TurtlebotDriving import TurtlebotDriving
 
@@ -11,8 +9,6 @@ def get_algorithm(config):
 
     if algorithm_type == "wallfollowingbot":
         return WallFollowingBot(speed=0.2, wall_distance=0.3, side="right"), "Wall Following Algorithm"
-    elif algorithm_type == "wallfollowing":
-    	return WallFollower(speed=0.2, distance_wall=0.3, side="right"), "Wall Follower"
     else:
         raise ValueError(f"Unknown algorithm specified: {config['algorithm']}")
 
