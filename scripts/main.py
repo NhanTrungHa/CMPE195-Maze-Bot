@@ -55,11 +55,8 @@ def main():
     else:
         raise ValueError(f"Unknown algorithm specified: {config['algorithm']}")
 
-    if name != "Wall Following":
-
-        t0 = time.time()
+    if name is not "simplewallfollowing" and not "floodfill":
         path, count, length, completed = algorithm.solve()
-        t1 = time.time()
 
         if completed:
             print("Path found:")
@@ -70,7 +67,29 @@ def main():
         else:
             print("\nNo path found")
 
+<<<<<<< HEAD
         i = 0
+=======
+    i = 0
+
+    if name is "floodfill":
+        path, count, length, completed, maze = algorithm.solve()
+        distance_array = maze.get_distances_array()
+        for row in distance_array:
+            print(row)
+        if completed:
+            print("Path found:")
+            print(path)
+            print("Node explored:", count)
+            print("Path length:", length)
+
+        else:
+            print("\nNo path found")
+
+    while i < (len(path) - 2):
+        if path[i][0] == path[i + 1][0] == path[i + 2][0] or path[i][1] == path[i + 1][1] == path[i + 2][1]:
+            path.remove(path[i + 1])
+>>>>>>> b8fcd08578e456196a2a17e822cda0bccf315cca
 
         while i < (len(path) - 2):
             if path[i][0] == path[i + 1][0] == path[i + 2][0] or path[i][1] == path[i + 1][1] == path[i + 2][1]:
