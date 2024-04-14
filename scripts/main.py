@@ -59,11 +59,8 @@ def main():
 
     logging.info(f"Starting Solve using {name}")
 
-    if name != "Wall Following":
-
-        t0 = time.time()
+    if name is not "Wall Following":
         path, count, length, completed = algorithm.solve()
-        t1 = time.time()
 
         if completed:
             print("Path found:")

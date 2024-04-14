@@ -9,13 +9,10 @@ class FloodFill:
         self.end = maze.end
 
     def solve(self):
-        frontier = deque([self.start]) # Initialize queue for BFS
-        deque.front = 0  # Set distance of start node to 0
+        frontier = deque([self.start]) # Initialize queue
 
-        # visited node
+        # nodes array
         visited = [False] * (self.width * self.height)
-
-        # previous node
         previous = [None] * (self.width * self.height)
 
         count = 0
