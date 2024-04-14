@@ -94,13 +94,11 @@ def main():
     except rospy.ROSInterruptException:
         pass
 
-    # --------------------------------- Automous Solving ---------------------------------
-
     # Wall Following
 
     else:
 
-        path, length, timetaken, completed = algorithm.run()
+        path, length, completed = algorithm.run()
 
         if completed:
             print("Path found:")
@@ -110,7 +108,6 @@ def main():
         else:
             print("\nNo path found")
 
-        print("Time taken :", timetaken, "s\n")
 
 if __name__ == '__main__':
     main()
