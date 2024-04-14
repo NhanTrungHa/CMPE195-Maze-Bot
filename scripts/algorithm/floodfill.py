@@ -1,5 +1,6 @@
 from collections import deque
 
+
 class FloodFill:
     def __init__(self, maze):
         self.maze = maze
@@ -9,7 +10,7 @@ class FloodFill:
         self.end = maze.end
 
     def solve(self):
-        frontier = deque([self.start]) # Initialize queue
+        frontier = deque([self.start])  # Initialize queue
 
         # nodes array
         visited = [False] * (self.width * self.height)
@@ -48,14 +49,4 @@ class FloodFill:
             current = previous[nodepos]
 
         path = [coord.position for coord in pathnode]
-        return path, count, len(path), completed
-
-    def get_accessible_neighbors(self, node):
-        neighbors = []
-        for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-            x, y = node.position[0] + dx, node.position[1] + dy
-            if 0 <= x < self.width and 0 <= y < self.height:
-                neighbor = self.maze.get_node((x, y))
-                if neighbor is not None:
-                    neighbors.append(neighbor)
-        return neighbors
+        return path, count, len(path), completed, self.maze

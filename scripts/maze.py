@@ -86,6 +86,33 @@ class Maze:
         # Calculate distances from each node to the end
         self.calculate_distances()
 
+    def get_distances_array(self) -> List[List[int]]:
+        """
+        Returns a 2D array containing distances of each node from the end node.
+        """
+        distances_array = [[node.distance for node in row] for row in self.iterate_maze()]
+        return distances_array
+
+    def iterate_maze(self) -> List[List['Maze.Node']]:
+        """
+        Iterates through the maze to collect all nodes.
+        """
+        maze_nodes = [[None for _ in range(self.height)] for _ in range(self.width)]
+        queue = [self.start]
+        visited = set()
+
+        while queue:
+            current_node = queue.pop(0)
+            visited.add(current_node)
+            x, y = current_node.position
+            maze_nodes[x][y] = current_node
+
+            for neighbour in current_node.neighbours:
+                if neighbour is not None and neighbour not in visited:
+                    queue.append(neighbour)
+
+        return maze_nodes
+
     def calculate_distances(self) -> None:
         """
         Calculate distances from each node to the end node using Euclidean distance.

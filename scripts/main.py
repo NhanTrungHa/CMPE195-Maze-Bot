@@ -59,7 +59,7 @@ def main():
 
     logging.info(f"Starting Solve using {name}")
 
-    if name is not "Wall Following":
+    if name is not "simplewallfollowing" and not "floodfill":
         path, count, length, completed = algorithm.solve()
 
         if completed:
@@ -72,6 +72,20 @@ def main():
             print("\nNo path found")
 
     i = 0
+
+    if name is "floodfill":
+        path, count, length, completed, maze = algorithm.solve()
+        distance_array = maze.get_distances_array()
+        for row in distance_array:
+            print(row)
+        if completed:
+            print("Path found:")
+            print(path)
+            print("Node explored:", count)
+            print("Path length:", length)
+
+        else:
+            print("\nNo path found")
 
     while i < (len(path) - 2):
         if path[i][0] == path[i + 1][0] == path[i + 2][0] or path[i][1] == path[i + 1][1] == path[i + 2][1]:
