@@ -21,7 +21,7 @@ class SimpleWallFollower():
         self.turn_rate = 0
         self.rate = rospy.Rate(10)
         self.speed_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=1000)
-        
+
         rospy.Subscriber("scan", LaserScan, self.laser_scan_callback)
         rospy.loginfo(f'Wall following initiated on the {side} side...')
         rospy.sleep(1)

@@ -1,6 +1,6 @@
 from collections import deque
 
-class floodfill:
+class FloodFill:
     def __init__(self, maze):
         self.maze = maze
         self.width = maze.width
