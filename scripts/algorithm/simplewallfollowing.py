@@ -10,21 +10,18 @@ import math
 
 class SimpleWallFollower():
     def __init__(self, speed, wall_distance, side):
-        self.position_history_x = []
-        self.position_history_y = []
+        rospy.init_node('PythonControl')
 
         self.speed = speed
         self.wall_distance = wall_distance
         self.lead_distance = 0.5
-
+        self.position_history_x = []
+        self.position_history_y = []
         self.side_factor = 1 if side == 'left' else -1
         self.turn_rate = 0
-
-        rospy.init_node('PythonControl')
-
         self.rate = rospy.Rate(10)
-
         self.speed_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=1000)
+        
         rospy.Subscriber("scan", LaserScan, self.laser_scan_callback)
         rospy.loginfo(f'Wall following initiated on the {side} side...')
         rospy.sleep(1)

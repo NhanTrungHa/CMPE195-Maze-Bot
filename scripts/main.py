@@ -16,9 +16,12 @@ import logging
 import time
 
 from scripts.TurtlebotDriving import TurtlebotDriving
+from scripts.maze import Maze
 
 config = {
-    "algorithm": "simplewallfollowing"
+    "algorithm": "simplewallfollowing",
+    "directory": "map",
+    "yamlFile":"map3.yaml",
 }
 
 def main():
@@ -27,13 +30,11 @@ def main():
 
     # Map Setup
     os.chdir(r'./src/maze_solver')
-    with open(os.path.join(config["map_dir"], config["map_info"])) as file:
+    with open(os.path.join(config["directory"], config["yamlFile"])) as file:
         map_config = yaml.load(file, Loader=yaml.FullLoader)
 
-    # Read image
+    # Read image and process into binary values
     input = cv2.imread(os.path.join(config["map_dir"], map_config["image"]), -1)
-
-    # Make wall = 1, path = 0
     input = (input != 254).astype(int)
 
     print("Creating Maze...")
