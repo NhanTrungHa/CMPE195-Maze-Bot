@@ -83,6 +83,29 @@ class Maze:
                 self.nodecount += 1
                 break
 
+        # Calculate distances from each node to the end
+        self.calculate_distances()
+
+    def calculate_distances(self) -> None:
+        """
+        Calculate distances from each node to the end node using Euclidean distance.
+        """
+        if self.end is None:
+            return
+
+        queue = [self.end]
+        visited = set()
+
+        while queue:
+            current_node = queue.pop(0)
+            visited.add(current_node)
+
+            for neighbour in current_node.neighbours:
+                if neighbour is not None and neighbour not in visited:
+                    neighbour_distance = self.calculate_distance(neighbour, self.end)
+                    neighbour.set_distance(neighbour_distance)
+                    queue.append(neighbour)
+
     def calculate_distance(self, start: 'Maze.Node', end: 'Maze.Node') -> int:
         """
         Calculates the distance between two nodes using Manhattan distance.
