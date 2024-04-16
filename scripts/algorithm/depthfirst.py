@@ -1,21 +1,32 @@
 from collections import deque
-
-class DFS:
+class DFS():
     def __init__(self, maze):
+
         self.width = maze.width
         self.height = maze.height
         self.start = maze.start
         self.end = maze.end
-        self.visited = [False] * (self.width * self.height)
-        self.previous = [None] * (self.width * self.height)
+        
 
     def solve(self):
+
+        # start node
         stack = deque([self.start])
+
+        # visited node
+        visited = [False] * (self.width * self.height)
+
+        # previous node
+        previous = [None] * (self.width * self.height)
+
+        # path count
         count = 0
+
         completed = False
 
-        self.mark_as_visited(self.start)
+        visited[self.start.position[0] * self.width + self.start.position[1]] = True
         
+        # DFS 
         while stack:
             count += 1
             current = stack.pop()
@@ -24,27 +35,30 @@ class DFS:
                 completed = True
                 break
 
-            for neighbor in current.neighbours:
-                if neighbor is not None and not self.is_visited(neighbor):
-                    self.mark_as_visited(neighbor)
-                    stack.append(neighbor)
-                    self.previous[neighbor.position[0] * self.width + neighbor.position[1]] = current
+            # Node out of bound
+            for n in current.neighbours:
 
-        path = self.generate_path()
-        return path, count, len(path), completed
+                # neighbour is not a wall
+                if n != None:
 
-    def mark_as_visited(self, node):
-        self.visited[node.position[0] * self.width + node.position[1]] = True
+                    nodepos = n.position[0] * self.width + n.position[1]
 
-    def is_visited(self, node):
-        return self.visited[node.position[0] * self.width + node.position[1]]
+                    # neighbour not visited yet
+                    if visited[nodepos] == False:
+                        stack.append(n)
+                        visited[nodepos] = True
+                        previous[nodepos] = current
 
-    def generate_path(self):
-        path = deque()
+        
+        # Backtracking
+        pathnode = deque()
         current = self.end
 
         while current is not None:
-            path.appendleft(current)
-            current = self.previous[current.position[0] * self.width + current.position[1]]
+            nodepos = current.position[0] * self.width + current.position[1]
+            pathnode.appendleft(current)
+            current = previous[nodepos]
 
-        return [coord.position for coord in path]
+        path = [coord.position for coord in pathnode]
+
+        return path, count, len(path), completed

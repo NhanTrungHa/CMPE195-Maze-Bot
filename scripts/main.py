@@ -3,7 +3,7 @@
 import rospy
 import logging
 import os
-from algorithm.simplewallfollowing import SimpleWallFollower
+from algorithm.wallfollowingbot import WallFollowingBot
 from algorithm.depthfirst import DFS
 from algorithm.breadthfirst import BFS
 from algorithm.floodfill import FloodFill
@@ -13,114 +13,142 @@ import numpy as np
 import yaml
 import logging
 import time
-from scripts.maze import Maze
-from scripts.TurtlebotDriving import TurtlebotDriving
+from maze import Maze
+from TurtlebotDriving import TurtlebotDriving
 
 config = {
-    "algorithm": "simplewallfollowing",
+    "algorithm": "dfs",
     "directory": "map",
-    "yamlFile":"map3.yaml",
+    "yamlFile":"map1.yaml",
 }
 
 def main():
-    # Set up logging
-    logging.basicConfig(level=logging.INFO)
+	# Set up logging
+	logging.basicConfig(level=logging.INFO)
 
-    # Map Setup
-    os.chdir(r'./src/maze_solver')
-    with open(os.path.join(config["directory"], config["yamlFile"])) as file:
-        map_config = yaml.load(file, Loader=yaml.FullLoader)
+	# Map Setup
+	os.chdir(r'./src/CMPE195-Maze-Bot')
+	with open(os.path.join(config["directory"], config["yamlFile"])) as file:
+		map_config = yaml.load(file, Loader=yaml.FullLoader)
 
-    # Read image and process into binary values
-    input = cv2.imread(os.path.join(config["map_dir"], map_config["image"]), -1)
-    input = (input != 254).astype(int)
+	# Read image and process into binary values
+	input = cv2.imread(os.path.join(config["directory"], map_config["image"]), -1)
+	input = (input != 254).astype(int)
 
-    print("Creating Maze...")
-    maze = Maze(input)
+	print("Creating Maze...")
 
-    # Check which algorithm to use
-    if config["algorithm"].casefold() == "simplewallfollowing":
-        name = "Simple Wall Follower Algorithm"
-        algorithm = SimpleWallFollower(speed=0.2, distance_wall=0.4, side="right")
-    elif config["algorithm"].casefold() == "dfs":
-        name = "Depth First Search Algorithm"
-        algorithm = DFS(maze)
-    elif config["algorithm"].casefold() == "bfs":
-        name = "Breadth First Search Algorithm"
-        algorithm = BFS(maze)
-    elif config["algorithm"].casefold() == "floodfill":
-        name = "Flood Fill Algorithm"
-        algorithm = FloodFill(maze)
+	# Check which algorithm to use
+	if config["algorithm"].casefold() == "simplewallfollowing":
+		name = "Simple Wall Follower Algorithm"
+		algorithm = WallFollowingBot(speed=0.2, wall_distance=0.4, side="right")
+	elif config["algorithm"].casefold() == "dfs":
+		name = "Depth First Search Algorithm"
+		maze = Maze(input)
+		algorithm = DFS(maze)
 
-    else:
-        raise ValueError(f"Unknown algorithm specified: {config['algorithm']}")
+	elif config["algorithm"].casefold() == "bfs":
+		name = "Breadth First Search Algorithm"
+		maze = Maze(input)
+		algorithm = BFS(maze)
+	elif config["algorithm"].casefold() == "floodfill":
+		name = "Flood Fill Algorithm"
+		maze = Maze(input)
+		algorithm = FloodFill(maze)
 
-    if name is not "simplewallfollowing" and not "floodfill":
-        path, count, length, completed = algorithm.solve()
+	else:
+		raise ValueError(f"Unknown algorithm specified: {config['algorithm']}")
 
-        if completed:
-            print("Path found:")
-            print(path)
-            print("Node explored:", count)
-            print("Path length:", length)
+	# dfs and bfs
+	if name == "Depth First Search Algorithm" or name == "Breadth First Search Algorithm":
+		path, count, length, completed = algorithm.solve()
+		if completed:
+		    print("Path found:")
+		    print(path)
+		    print("Node explored:", count)
+		    print("Path length:", length)
+		
+		else:
+		    print("\nNo path found")
+		
+		i = 0
+		while i < (len(path)-2):
+		    if path[i][0] == path[i+1][0] == path[i+2][0] or path[i][1] == path[i+1][1] == path[i+2][1]:
+		        path.remove(path[i+1])
 
-        else:
-            print("\nNo path found")
+		    else:
+		        i+=1
 
-<<<<<<< HEAD
-        i = 0
-=======
-    i = 0
+		try:
+		    bot = TurtlebotDriving()
 
-    if name is "floodfill":
-        path, count, length, completed, maze = algorithm.solve()
-        distance_array = maze.get_distances_array()
-        for row in distance_array:
-            print(row)
-        if completed:
-            print("Path found:")
-            print(path)
-            print("Node explored:", count)
-            print("Path length:", length)
+		    for i in range(len(path)-1):
+		        bot.move(path[i], path[i+1])
 
-        else:
-            print("\nNo path found")
 
-    while i < (len(path) - 2):
-        if path[i][0] == path[i + 1][0] == path[i + 2][0] or path[i][1] == path[i + 1][1] == path[i + 2][1]:
-            path.remove(path[i + 1])
->>>>>>> b8fcd08578e456196a2a17e822cda0bccf315cca
+		    print("Maze Solved!")
+		    bot.plot_trajectory(name)
+		    bot.relaunch()
+		    print("Time taken :",t1-t0,"s\n")
+		    
 
-        while i < (len(path) - 2):
-            if path[i][0] == path[i + 1][0] == path[i + 2][0] or path[i][1] == path[i + 1][1] == path[i + 2][1]:
-                path.remove(path[i + 1])
+		except rospy.ROSInterruptException:
+		    pass
 
-            else:
-                i += 1
 
-        try:
-            bot = TurtlebotDriving()
+	# Flood fill
+	if name == "Flood Fill Algorithm":
+		path, count, length, completed, maze = algorithm.solve()
+		distance_array = maze.get_distances_array()
+		i=0
 
-            for i in range(len(path) - 1):
-                bot.move(path[i], path[i + 1])
+		while i < (len(path)-2):
+		    if path[i][0] == path[i+1][0] == path[i+2][0] or path[i][1] == path[i+1][1] == path[i+2][1]:
+		        path.remove(path[i+1])
 
-            print("Maze Solved!")
-            bot.relaunch()
+		    else:
+		        i+=1
 
-        except rospy.ROSInterruptException:
-            pass
+		try:
+		    bot = TurtlebotDriving()
 
-    else:
-        path, length, completed = algorithm.run()
+		    for i in range(len(path)-1):
+		        bot.move(path[i], path[i+1])
 
-        if completed:
-            print("Path found:")
-            print(path)
-            print("Path length:", length)
 
-        else:
-            print("\nNo path found")
+		    print("Maze Solved!")
+		    bot.plot_trajectory(name)
+		    bot.relaunch()
+		    
+
+		except rospy.ROSInterruptException:
+		    pass
+
+
+		for row in distance_array:
+	    		print(row)
+		if completed:
+	    		print("Path found:")
+	    		print(path)
+	    		print("Node explored:", count)
+	    		print("Path length:", length)
+
+		else:
+	    		print("\nNo path found")
+    		
+    	# Wall Following
+	else:
+		path, length, timetaken, completed = algorithm.solve()
+
+		if completed:
+			print("Path found:")
+			print(path)
+			print("Path length:", length)
+        
+		else:
+			print("\nNo path found")
+			print("Time taken :",timetaken,"s\n")
+        
+
 
 if __name__ == '__main__':
     main()
-
