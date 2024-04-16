@@ -1,50 +1,48 @@
 from collections import deque
 
-class BFS:
+class BFS():
     def __init__(self, maze):
         self.width = maze.width
         self.height = maze.height
         self.start = maze.start
         self.end = maze.end
-        self.visited = [False] * (self.width * self.height)
-        self.previous = [None] * (self.width * self.height)
 
     def solve(self):
-        frontier = deque([self.start])
+        stack, visited, previous, count, completed = self.initialize()
+        stack, visited, previous, count, completed = self.dfs_traversal(stack, visited, previous, count, completed)
+        path = self.backtrack(previous)
+        return path, count, len(path), completed
+
+    def initialize(self):
+        stack = deque([self.start])
+        visited = [False] * (self.width * self.height)
+        previous = [None] * (self.width * self.height)
         count = 0
         completed = False
+        visited[self.start.position[0] * self.width + self.start.position[1]] = True
+        return stack, visited, previous, count, completed
 
-        self.mark_as_visited(self.start)
-        
-        while frontier:
+    def dfs_traversal(self, stack, visited, previous, count, completed):
+        while stack:
             count += 1
-            current = frontier.popleft()
-
+            current = stack.popleft()
             if current == self.end:
                 completed = True
                 break
+            for n in current.neighbours:
+                if n is not None and not visited[n.position[0] * self.width + n.position[1]]:
+                    nodepos = n.position[0] * self.width + n.position[1]
+                    stack.append(n)
+                    visited[nodepos] = True
+                    previous[nodepos] = current
+        return stack, visited, previous, count, completed
 
-            for neighbor in current.neighbours:
-                if neighbor is not None and not self.is_visited(neighbor):
-                    self.mark_as_visited(neighbor)
-                    frontier.append(neighbor)
-                    self.previous[neighbor.position[0] * self.width + neighbor.position[1]] = current
-
-        path = self.generate_path()
-        return path, count, len(path), completed
-
-    def mark_as_visited(self, node):
-        self.visited[node.position[0] * self.width + node.position[1]] = True
-
-    def is_visited(self, node):
-        return self.visited[node.position[0] * self.width + node.position[1]]
-
-    def generate_path(self):
-        path = deque()
+    def backtrack(self, previous):
+        pathnode = deque()
         current = self.end
-
         while current is not None:
-            path.appendleft(current)
-            current = self.previous[current.position[0] * self.width + current.position[1]]
-
-        return [coord.position for coord in path]
+            nodepos = current.position[0] * self.width + current.position[1]
+            pathnode.appendleft(current)
+            current = previous[nodepos]
+        path = [coord.position for coord in pathnode]
+        return path
