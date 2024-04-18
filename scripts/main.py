@@ -16,8 +16,9 @@ import time
 from maze import Maze
 from TurtlebotDriving import TurtlebotDriving
 
+print("Current Working Directory:", os.getcwd())
 config = {
-    "algorithm": "dfs",
+    "algorithm": "wallfollowingbot",
     "directory": "map",
     "yamlFile": "map1.yaml",
 }
@@ -28,7 +29,7 @@ def main():
     logging.basicConfig(level=logging.INFO)
 
     # Map Setup
-    os.chdir(r'./src/CMPE195-Maze-Bot')
+    os.chdir('..')
     with open(os.path.join(config["directory"], config["yamlFile"])) as file:
         map_config = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -39,8 +40,8 @@ def main():
     print("Creating Maze...")
 
     # Check which algorithm to use
-    if config["algorithm"].casefold() == "simplewallfollowing":
-        name = "Simple Wall Follower Algorithm"
+    if config["algorithm"].casefold() == "wallfollowingbot":
+        name = "Wall Follower Algorithm"
         algorithm = WallFollowingBot(speed=0.2, wall_distance=0.4, side="right")
     elif config["algorithm"].casefold() == "dfs":
         name = "Depth First Search Algorithm"

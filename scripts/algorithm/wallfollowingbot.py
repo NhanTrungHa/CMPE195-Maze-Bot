@@ -70,33 +70,39 @@ class WallFollowingBot():
             adjust_turn = (0 if frontal_scan >= 0.5 else 1 - frontal_scan)
             abs_turn_rate = math.atan2(next_y - self.wall_distance, next_x + self.lead_distance - close_wall) - adjust_turn * 1.5
             self.turn_rate = self.side_factor * abs_turn_rate
-
+   
+    def solve(self):
+        """Wrapper method for running the wall-following algorithm."""
+        return self.run()
 
     def run(self):
-
+        trajectory = []
+        start_time =time.time()
+        end_time = start_time
+        operation_complete = False
+        
         try:
             bot_driver = TurtlebotDriving()
-
-            operation_complete = False
 
             rospy.loginfo('1) Speed set to: ' + str(self.speed))
             rospy.loginfo('2) Set distance from wall: ' + str(self.wall_distance))
 
-            start_time = time.time()
             while self.scan_zones['wide_front'] < 10 and not rospy.is_shutdown():
                 self.update_speed(self.speed, self.turn_rate)
                 self.rate.sleep()
             end_time = time.time()
+            operation_complete =True
 
             rospy.loginfo("Maze navigation completed!")
             bot_driver.stop()
             trajectory = bot_driver.obtainpath()
             bot_driver.plot_trajectory('Wall Tracking')
             bot_driver.relaunch()
-            operation_complete = True
+    
 
             return trajectory, len(trajectory), end_time - start_time, operation_complete
 
-        except rospy.ROSInterruptException:
-            pass
+        except rospy.ROSInterruptException as e:
+            rospy.logwarn("ROS Interrupt Exception: " + str(e))
+
 
