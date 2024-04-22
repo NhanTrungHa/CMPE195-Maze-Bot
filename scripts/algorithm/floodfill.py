@@ -1,52 +1,84 @@
 from collections import deque
 
+class Node:
+    def __init__(self, position, distance):
+        self.position = position
+        self.distance = distance
 
-class FloodFill:
+class FloodFill():
     def __init__(self, maze):
-        self.maze = maze
         self.width = maze.width
         self.height = maze.height
         self.start = maze.start
         self.end = maze.end
-
+        self.maze = maze
+        
+    def calculate_manhattan_distance(self, pos1, pos2):
+        return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+    
+    def flood_fill(self):
+        # Initialize distances for each cell
+        distances = [[float('inf') for _ in range(self.width)] for _ in range(self.height)]
+        distances[self.end.position[0]][self.end.position[1]] = 0
+        
+        # Initialize queue
+        queue = deque([self.end])
+        
+        # Flood fill
+        while queue:
+            current = queue.popleft()
+            
+            for neighbor in current.neighbours:
+                if neighbor and distances[neighbor.position[0]][neighbor.position[1]] == float('inf'):
+                    queue.append(neighbor)
+                    distances[neighbor.position[0]][neighbor.position[1]] = distances[current.position[0]][current.position[1]] + 1
+        
+        return distances
+    
     def solve(self):
-        frontier = deque([self.start])  # Initialize queue
-
-        # nodes array
-        visited = [False] * (self.width * self.height)
-        previous = [None] * (self.width * self.height)
-
+        # Initialize distances using flood fill
+        distances = self.flood_fill()
+        
+        # Initialize start node
+        frontier = deque([self.start])
+        
+        # Initialize visited nodes
+        visited = set()
+        
+        # Initialize previous nodes
+        previous = {}
+        
+        # Initialize path count
         count = 0
-
+        
+        completed = False
+        
+        visited.add(self.start.position)
+        
+        # BFS
         while frontier:
             count += 1
-            current = frontier.popleft()  # Take front node from queue
-
+            current = frontier.popleft()
+            
             if current == self.end:
                 completed = True
                 break
-
-            min_distance = min(neighbor.distance for neighbor in current)
-            for n in current.neighbours:
-                if current.distance <= min_distance:
-                    current.distance = min_distance + 1  # Update distance of current node
-
-                if n is not None:
-                    nodepos = n.position[0] * self.width + n.position[1]
-
-                    if not visited[nodepos]:
-                        frontier.append(n)  # Add accessible neighbors to queue
-                        visited[nodepos] = True
-                        previous[nodepos] = current
-
-        # Backtrack to find the path
-        pathnode = deque()
+            
+            for neighbor in current.neighbours:
+                if neighbor and neighbor.position not in visited:
+                    node_distance = distances[neighbor.position[0]][neighbor.position[1]]
+                    if node_distance <= distances[current.position[0]][current.position[1]]:
+                        frontier.append(neighbor)
+                        visited.add(neighbor.position)
+                        previous[neighbor.position] = current
+        
+        # Backtracking
+        path = []
         current = self.end
-
         while current is not None:
-            nodepos = current.position[0] * self.width + current.position[1]
-            pathnode.appendleft(current)
-            current = previous[nodepos]
-
-        path = [coord.position for coord in pathnode]
-        return path, count, len(path), completed, self.maze
+            path.append(current.position)
+            current = previous.get(current.position)
+        
+        path.reverse()
+        
+        return path, count, len(path), completed

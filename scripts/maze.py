@@ -20,6 +20,42 @@ class Maze:
         def __ge__(self, other):
             return (self > other) or (self == other)
 
+    def calculate_distances(self):
+        """
+        Calculate distances from each node to the end node using Euclidean distance.
+        """
+        # Initialize distance from end node to itself as 0
+        self.end.distance = 0
+
+        # Initialize a queue for the flood-fill algorithm
+        queue = [self.end]
+
+        # Perform flood-fill until the queue is empty
+        while queue:
+            current_node = queue.pop(0)  # Get the next node from the queue
+
+            # Check all neighbors of the current node
+            for neighbor in current_node.neighbours:
+                # Skip if the neighbor is None
+                if neighbor is None:
+                    continue
+
+                # Calculate the Euclidean distance between the current node and its neighbor
+                distance_to_neighbor = self.calculate_distance_between_two_nodes(current_node, neighbor)
+
+                # Update the neighbor's distance if the newly calculated distance is shorter
+                if current_node.distance + distance_to_neighbor < neighbor.distance:
+                     neighbor.distance = current_node.distance + distance_to_neighbor
+                     # Add the neighbor to the queue to process its neighbors in the next iteration
+                     queue.append(neighbor)
+
+
+    def calculate_distance_between_two_nodes(self, start: 'Maze.Node', end: 'Maze.Node'):
+        """
+        Calculates the distance between two nodes using Manhattan distance.
+        """
+        return abs(start.position[0] - end.position[0]) + abs(start.position[1] - end.position[1])
+
     def __init__(self, arr):
 
         maze = np.array(arr)
@@ -96,67 +132,9 @@ class Maze:
                 break
 
         self.nodecount = nodecount
+        self.calculate_distances()
 
 
-        def get_distances_array(self):
-            """
-	    Returns a 2D array containing distances of each node from the end node.
-	    """
-            distances_array = [[node.distance for node in row] for row in self.iterate_maze()]
-            return distances_array
 
 
-        def iterate_maze(self):
-            """
-	    Iterates through the maze to collect all nodes.
-	    """
-            maze_nodes = [[None for _ in range(self.height)] for _ in range(self.width)]
-            queue = [self.start]
-            visited = set()
 
-            while queue:
-                current_node = queue.pop(0)
-                visited.add(current_node)
-                x, y = current_node.position
-                maze_nodes[x][y] = current_node
-
-                for neighbour in current_node.neighbours:
-                    if neighbour is not None and neighbour not in visited:
-                        queue.append(neighbour)
-
-            return maze_nodes
-
-
-        def calculate_distances(self):
-            """
-            Calculate distances from each node to the end node using Euclidean distance.
-            """
-            if self.end is None:
-                return
-
-            queue = [self.end]
-            visited = set()
-
-            while queue:
-                current_node = queue.pop(0)
-                visited.add(current_node)
-
-                for neighbour in current_node.neighbours:
-                    if neighbour is not None and neighbour not in visited:
-                        neighbour_distance = self.calculate_distance(neighbour, self.end)
-                        neighbour.set_distance(neighbour_distance)
-                        queue.append(neighbour)
-
-
-        def calculate_distance(self, start: 'Maze.Node', end: 'Maze.Node'):
-            """
-            Calculates the distance between two nodes using Manhattan distance.
-            """
-            return abs(start.position[0] - end.position[0]) + abs(start.position[1] - end.position[1])
-
-
-        def calculate_distance(self, start: 'Maze.Node', end: 'Maze.Node'):
-            """
-	    Calculates the distance between two nodes using Manhattan distance.
-	    """
-            return abs(start.position[0] - end.position[0]) + abs(start.position[1] - end.position[1])

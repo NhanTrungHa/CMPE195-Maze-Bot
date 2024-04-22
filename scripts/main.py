@@ -18,7 +18,7 @@ from TurtlebotDriving import TurtlebotDriving
 
 print("Current Working Directory:", os.getcwd())
 config = {
-    "algorithm": "wallfollowingbot",
+    "algorithm": "floodfill",
     "directory": "map",
     "yamlFile": "map1.yaml",
 }
@@ -29,7 +29,7 @@ def main():
     logging.basicConfig(level=logging.INFO)
 
     # Map Setup
-    os.chdir('..')
+    os.chdir(r'./src/CMPE195-Maze-Bot')
     with open(os.path.join(config["directory"], config["yamlFile"])) as file:
         map_config = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -62,7 +62,9 @@ def main():
 
     # dfs and bfs
     if name == "Depth First Search Algorithm" or name == "Breadth First Search Algorithm":
+        time1 = time.time()
         path, count, length, completed = algorithm.solve()
+        time2 = time.time()
         if completed:
             print("Path found:")
             print(path)
@@ -72,6 +74,7 @@ def main():
         else:
             print("\nNo path found")
 
+        print("Time Taken:", time2-time1, "\n")
         i = 0
         while i < (len(path) - 2):
             if path[i][0] == path[i + 1][0] == path[i + 2][0] or path[i][1] == path[i + 1][1] == path[i + 2][1]:
@@ -96,10 +99,12 @@ def main():
 
     # Flood fill
     if name == "Flood Fill Algorithm":
-        path, count, length, completed, maze = algorithm.solve()
-        distance_array = maze.get_distances_array()
+        print("Flood fill solving...");
+        time1 = time.time()
+        path, count, length, completed = algorithm.solve()
+        time2 = time.time()
         i = 0
-
+        print("Time Taken:", time2-time1, "\n")
         while i < (len(path) - 2):
             if path[i][0] == path[i + 1][0] == path[i + 2][0] or path[i][1] == path[i + 1][1] == path[i + 2][1]:
                 path.remove(path[i + 1])
@@ -134,8 +139,10 @@ def main():
 
     # Wall Following
     else:
+        time1 = time.time()
         path, length, timetaken, completed = algorithm.solve()
-
+        time1 = time.time()
+        print("Time Taken:", time2-time1, "\n")
         if completed:
             print("Path found:")
             print(path)
