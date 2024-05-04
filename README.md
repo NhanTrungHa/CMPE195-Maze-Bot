@@ -32,8 +32,8 @@ This project implements a maze navigation robot capable of autonomously navigati
 - $source ~/catkin_ws/devel/setup.bash
 - $chmod a+x ~/catkin_ws/src/CMPE195-Maze-Bot/scripts/main.py
 - $roslaunch {Folder Name} maze1.launch
-Wait for Gazebo to launch
 
+Wait for Gazebo to launch
 On a seperate terminal:
 Navigate to the folder with the scripts
 - $rosrun {Folder Name} main.py
