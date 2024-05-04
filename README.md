@@ -38,6 +38,7 @@ On a seperate terminal:
 Navigate to the folder with the scripts
 - $rosrun {Folder Name} main.py
 
-##Github Repository
+## Github Repository
+https://github.com/NhanTrungHa/CMPE195-Maze-Bot.git
 
 
