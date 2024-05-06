@@ -1,10 +1,5 @@
 from collections import deque
 
-class Node:
-    def __init__(self, position, distance):
-        self.position = position
-        self.distance = distance
-
 class FloodFill():
     def __init__(self, maze):
         self.width = maze.width
@@ -59,6 +54,7 @@ class FloodFill():
         
         visited.add(self.start.position)
         
+        # BFS
         while frontier:
             count += 1
             current = frontier.popleft()
@@ -69,11 +65,9 @@ class FloodFill():
             
             for neighbor in current.neighbours:
                 if neighbor and neighbor.position not in visited:
-                    node_distance = distances[neighbor.position[0]][neighbor.position[1]]
-                    if node_distance <= distances[current.position[0]][current.position[1]]:
-                        frontier.append(neighbor)
-                        visited.add(neighbor.position)
-                        previous[neighbor.position] = current
+                    frontier.append(neighbor)
+                    visited.add(neighbor.position)
+                    previous[neighbor.position] = current
         
         # Backtracking
         path = []
